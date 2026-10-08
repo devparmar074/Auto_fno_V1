@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="AutoFno.Api/AutoFno.Api.csproj" />
+  <Project Path="AutoFno.Application/AutoFno.Application.csproj" />
+  <Project Path="AutoFno.Domain/AutoFno.Domain.csproj" />
+  <Project Path="AutoFno.Infrastructure/AutoFno.Infrastructure.csproj" />
+</Solution>
