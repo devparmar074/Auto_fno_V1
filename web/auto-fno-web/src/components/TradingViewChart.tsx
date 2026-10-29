@@ -94,25 +94,25 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({
 
     const chart = createChart(chartContainerRef.current, {
       layout: {
-        background: { type: ColorType.Solid, color: '#090d16' },
-        textColor: '#94a3b8',
+        background: { type: ColorType.Solid, color: '#06080C' },
+        textColor: '#7B8B9E',
       },
       grid: {
-        vertLines: { color: 'rgba(30, 41, 59, 0.5)' },
-        horzLines: { color: 'rgba(30, 41, 59, 0.5)' },
+        vertLines: { color: 'rgba(26, 33, 45, 0.45)' },
+        horzLines: { color: 'rgba(26, 33, 45, 0.45)' },
       },
       crosshair: {
         mode: CrosshairMode.Normal,
       },
       rightPriceScale: {
-        borderColor: '#1e293b',
+        borderColor: '#1A212D',
         scaleMargins: {
           top: 0.1,
           bottom: 0.25,
         },
       },
       timeScale: {
-        borderColor: '#1e293b',
+        borderColor: '#1A212D',
         timeVisible: true,
         secondsVisible: false,
       },
@@ -124,17 +124,17 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({
 
     // Add Candlestick Series (lightweight-charts v5 API)
     const candleSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#10b981',
-      downColor: '#ef4444',
+      upColor: '#19E58C',
+      downColor: '#FF4D67',
       borderVisible: false,
-      wickUpColor: '#10b981',
-      wickDownColor: '#ef4444',
+      wickUpColor: '#19E58C',
+      wickDownColor: '#FF4D67',
     });
     candleSeriesRef.current = candleSeries;
 
     // Add EMA 9
     const ema9Series = chart.addSeries(LineSeries, {
-      color: '#38bdf8', // Light sky blue
+      color: '#45B8FF', // OrderBlock Sky Cyan
       lineWidth: 1,
       title: 'EMA 9',
     });
@@ -142,7 +142,7 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({
 
     // Add EMA 21
     const ema21Series = chart.addSeries(LineSeries, {
-      color: '#fbbf24', // Amber
+      color: '#FFB020', // OrderBlock Amber
       lineWidth: 1,
       title: 'EMA 21',
     });
@@ -199,33 +199,38 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({
   }, [spotPrice]);
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl mb-4">
+    <div className="ob-panel rounded-2xl overflow-hidden shadow-2xl mb-4 border border-[#1A212D] relative">
       {/* Chart Top Controls */}
-      <div className="bg-slate-950 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-1.5 text-xs font-bold text-white font-mono uppercase">
-            <BarChart2 className="w-4 h-4 text-cyan-400" />
-            <span>{indexSymbol} SPOT INTRADAY</span>
+      <div className="bg-[#06080C]/90 px-4 py-2.5 border-b border-[#1A212D] flex items-center justify-between relative overflow-hidden">
+        {/* Scanner Radar Beam in Chart Header */}
+        <div className="ob-scanner-beam" />
+
+        <div className="flex items-center space-x-3 relative z-10">
+          <div className="flex items-center space-x-2 text-xs font-bold text-white font-mono uppercase">
+            <BarChart2 className="w-4 h-4 text-[#45B8FF] animate-pulse" />
+            <span className="ob-grad-brand">{indexSymbol} SPOT INTRADAY</span>
           </div>
-          <div className="flex items-center space-x-2 text-[10px] font-mono">
-            <span className="flex items-center gap-1 text-sky-400">
-              <span className="w-2 h-0.5 bg-sky-400 rounded" /> EMA 9
+          <div className="flex items-center space-x-3 text-[10px] font-mono">
+            <span className="flex items-center gap-1.5 text-[#45B8FF] bg-[#45B8FF]/10 px-1.5 py-0.5 rounded border border-[#45B8FF]/30">
+              <span className="w-2 h-0.5 bg-[#45B8FF] rounded" /> EMA 9
             </span>
-            <span className="flex items-center gap-1 text-amber-400">
-              <span className="w-2 h-0.5 bg-amber-400 rounded" /> EMA 21
+            <span className="flex items-center gap-1.5 text-[#FFB020] bg-[#FFB020]/10 px-1.5 py-0.5 rounded border border-[#FFB020]/30">
+              <span className="w-2 h-0.5 bg-[#FFB020] rounded" /> EMA 21
             </span>
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 relative z-10">
           {/* Interval Switcher */}
-          <div className="bg-slate-900 p-0.5 rounded-lg border border-slate-800 flex">
+          <div className="bg-[#06080C] p-0.5 rounded-lg border border-[#1A212D] flex shadow-inner">
             {(['1minute', '5minute'] as const).map((int) => (
               <button
                 key={int}
                 onClick={() => setInterval(int)}
-                className={`px-2 py-0.5 text-[10px] font-mono font-bold rounded ${
-                  interval === int ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'
+                className={`px-2.5 py-0.5 text-[10px] font-mono font-bold rounded transition ob-hover-lift ${
+                  interval === int
+                    ? 'bg-gradient-to-r from-[#0284C7] to-[#0EA5E9] text-white shadow-[0_0_10px_rgba(14,165,233,0.4)]'
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
                 {int === '1minute' ? '1m' : '5m'}
@@ -236,10 +241,10 @@ export const TradingViewChart: React.FC<TradingViewChartProps> = ({
           <button
             onClick={loadCandles}
             disabled={loading}
-            className="p-1 text-slate-400 hover:text-white rounded"
+            className="p-1.5 bg-[#11161F] hover:bg-[#161C27] text-slate-400 hover:text-white rounded-lg border border-[#1A212D] transition ob-hover-lift"
             title="Reload Chart Candles"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-cyan-400' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#45B8FF]' : ''}`} />
           </button>
         </div>
       </div>

@@ -1,0 +1,533 @@
+/* =====================================================================
+   OrderBlock.com Inspired Animation & Visual Engine for AutoTrade
+   Keyframes, glow effects, radar scans, liquidity streams & micro-interactions
+   ===================================================================== */
+
+:root {
+  --ob-bg: #06080C;
+  --ob-surface: #0D1118;
+  --ob-surface-2: #11161F;
+  --ob-surface-3: #161C27;
+  --ob-line: #1A212D;
+  --ob-line-2: #242D3C;
+
+  /* Neon Token System */
+  --ob-bull: #19E58C;
+  --ob-bull-soft: rgba(25, 229, 140, 0.12);
+  --ob-bull-glow: rgba(25, 229, 140, 0.35);
+
+  --ob-bear: #FF4D67;
+  --ob-bear-soft: rgba(255, 77, 103, 0.12);
+  --ob-bear-glow: rgba(255, 77, 103, 0.35);
+
+  --ob-amber: #FFB020;
+  --ob-amber-soft: rgba(255, 176, 32, 0.14);
+  --ob-amber-glow: rgba(255, 176, 32, 0.45);
+
+  --ob-sky: #45B8FF;
+  --ob-sky-soft: rgba(69, 184, 255, 0.12);
+
+  --ob-teal: #2DD4BF;
+  --ob-teal-soft: rgba(45, 212, 191, 0.12);
+
+  --ob-violet: #7B7BFF;
+  --ob-violet-2: #A78BFA;
+  --ob-violet-soft: rgba(123, 123, 255, 0.14);
+
+  --ob-grid: rgba(255, 255, 255, 0.035);
+  --ob-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------------- 1. Radar Scanning Beam ----------------
+   Sweeps smoothly across chart / header / panels (order-block @keyframes hwScan) */
+@keyframes ob-scan {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  10%, 90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.ob-scanner-beam {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.ob-scanner-beam::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 140px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(45, 212, 191, 0.08) 60%,
+    rgba(45, 212, 191, 0.25) 95%,
+    rgba(69, 184, 255, 0.4) 100%
+  );
+  filter: drop-shadow(0 0 10px rgba(45, 212, 191, 0.5));
+  animation: ob-scan 7s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+/* ---------------- 2. Order Block Zone Sweep ----------------
+   Luminous soft gradient that moves across order-block boxes (@keyframes hwZs) */
+@keyframes ob-zone-sweep {
+  0%, 15% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.8;
+  }
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(250%);
+    opacity: 0;
+  }
+}
+
+.ob-zone-box {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    rgba(25, 229, 140, 0.12),
+    rgba(45, 212, 191, 0.06) 70%,
+    transparent
+  );
+  border: 1px solid rgba(25, 229, 140, 0.35);
+  border-left: 3px solid var(--ob-bull);
+}
+
+.ob-zone-box::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 50%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(25, 229, 140, 0.35),
+    transparent
+  );
+  pointer-events: none;
+  animation: ob-zone-sweep 4.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+.ob-zone-box-bear {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 77, 103, 0.12),
+    rgba(255, 77, 103, 0.05) 70%,
+    transparent
+  );
+  border: 1px solid rgba(255, 77, 103, 0.35);
+  border-left: 3px solid var(--ob-bear);
+}
+
+.ob-zone-box-bear::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 77, 103, 0.35),
+    transparent
+  );
+}
+
+/* ---------------- 3. Liquidity Line & Travelling Spark ----------------
+   Moving dashed stroke and travelling spark dot (@keyframes hwLiq & hwLqd) */
+@keyframes ob-liq-flow {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+@keyframes ob-spark-run {
+  0% {
+    left: 0%;
+    opacity: 0;
+  }
+  10%, 88% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+.ob-liq-line {
+  position: relative;
+  height: 2px;
+  width: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--ob-amber) 0 6px,
+    transparent 6px 12px
+  );
+  opacity: 0.85;
+}
+
+.ob-liq-spark {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: var(--ob-amber);
+  box-shadow: 0 0 0 2px rgba(255, 176, 32, 0.3), 0 0 12px 2px var(--ob-amber);
+  animation: ob-spark-run 5s linear infinite;
+}
+
+/* ---------------- 4. Gliding Metallic Shimmer / Glint ----------------
+   Sweeps over progress meters and score gauges (@keyframes hwGlint) */
+@keyframes ob-glint {
+  0%, 40% {
+    background-position: -150% 0, 0 0;
+  }
+  100% {
+    background-position: 250% 0, 0 0;
+  }
+}
+
+.ob-glint-bar {
+  background-image: 
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent),
+    linear-gradient(90deg, var(--ob-teal), var(--ob-bull));
+  background-repeat: no-repeat, no-repeat;
+  background-size: 40% 100%, 100% 100%;
+  animation: ob-glint 3.5s ease-in-out infinite;
+}
+
+.ob-glint-bar-bear {
+  background-image: 
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent),
+    linear-gradient(90deg, var(--ob-bear), #FF758C);
+  background-repeat: no-repeat, no-repeat;
+  background-size: 40% 100%, 100% 100%;
+  animation: ob-glint 3.5s ease-in-out infinite;
+}
+
+/* ---------------- 5. Sonar Ping Pulse ----------------
+   Dual ring sonar for live status (@keyframes hwPing) */
+@keyframes ob-sonar {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  75%, 100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.ob-sonar-dot {
+  position: relative;
+  display: inline-flex;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ob-bull);
+}
+
+.ob-sonar-dot::before,
+.ob-sonar-dot::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ob-bull);
+  animation: ob-sonar 2s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+}
+
+.ob-sonar-dot::after {
+  animation-delay: 0.75s;
+}
+
+.ob-sonar-dot-amber {
+  background: var(--ob-amber);
+}
+.ob-sonar-dot-amber::before,
+.ob-sonar-dot-amber::after {
+  border-color: var(--ob-amber);
+}
+
+.ob-sonar-dot-bear {
+  background: var(--ob-bear);
+}
+.ob-sonar-dot-bear::before,
+.ob-sonar-dot-bear::after {
+  border-color: var(--ob-bear);
+}
+
+/* ---------------- 6. Real-Time Price Tick Flashes ----------------
+   Flashes green/red on quote updates (@keyframes hwFl, hwTxU, hwTxD) */
+@keyframes ob-tick-flash-up {
+  0% {
+    background-color: rgba(25, 229, 140, 0.28);
+    color: #19E58C;
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
+@keyframes ob-tick-flash-down {
+  0% {
+    background-color: rgba(255, 77, 103, 0.28);
+    color: #FF4D67;
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
+.ob-flash-up {
+  animation: ob-tick-flash-up 0.85s ease-out;
+}
+
+.ob-flash-down {
+  animation: ob-tick-flash-down 0.85s ease-out;
+}
+
+/* ---------------- 7. Ambient Breathing Card Glow ----------------
+   Continuous subtle halo on active cards (@keyframes hwGlow) */
+@keyframes ob-card-halo {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(25, 229, 140, 0.25), 0 8px 24px -10px rgba(25, 229, 140, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(25, 229, 140, 0.5), 0 12px 30px -8px rgba(25, 229, 140, 0.4);
+  }
+}
+
+@keyframes ob-card-halo-bear {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(255, 77, 103, 0.25), 0 8px 24px -10px rgba(255, 77, 103, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(255, 77, 103, 0.5), 0 12px 30px -8px rgba(255, 77, 103, 0.4);
+  }
+}
+
+@keyframes ob-card-halo-brand {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(123, 123, 255, 0.25), 0 8px 24px -10px rgba(123, 123, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(123, 123, 255, 0.55), 0 12px 30px -8px rgba(123, 123, 255, 0.45);
+  }
+}
+
+.ob-glow-bull {
+  animation: ob-card-halo 3.5s ease-in-out infinite;
+}
+
+.ob-glow-bear {
+  animation: ob-card-halo-bear 3.5s ease-in-out infinite;
+}
+
+.ob-glow-brand {
+  animation: ob-card-halo-brand 3.5s ease-in-out infinite;
+}
+
+/* ---------------- 8. Staggered Row Rise ----------------
+   Smooth elevation on new orders & signals (@keyframes hwRise) */
+@keyframes ob-row-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ob-animate-rise {
+  animation: ob-row-rise 0.45s var(--ob-ease) backwards;
+}
+
+/* ---------------- 9. High-Tech Isometric Grid Backdrop ---------------- */
+.ob-grid-bg {
+  background-image: 
+    linear-gradient(var(--ob-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ob-grid) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center top;
+}
+
+/* ---------------- 10. Gradient Text Utilities ---------------- */
+.ob-grad-bull {
+  background: linear-gradient(92deg, #19E58C 10%, #2DD4BF 60%, #45B8FF);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ob-grad-bear {
+  background: linear-gradient(92deg, #FF4D67 10%, #F472B6 60%, #FFB020);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ob-grad-brand {
+  background: linear-gradient(92deg, #7B7BFF 10%, #A78BFA 60%, #45B8FF);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------------- 11. Interactive Hover Lift ---------------- */
+.ob-hover-lift {
+  transition: transform 0.2s var(--ob-ease), box-shadow 0.2s var(--ob-ease), border-color 0.2s;
+}
+
+.ob-hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.7);
+  border-color: rgba(123, 123, 255, 0.4);
+}
+
+.ob-hover-lift:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* ---------------- 12. Glass Surface Panel ---------------- */
+.ob-panel {
+  background: rgba(13, 17, 24, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 12px 32px -12px rgba(0, 0, 0, 0.7);
+}
+
+/* ---------------- 13. Options Derivatives Quantum Enhancements ---------------- */
+
+/* ATM Strike Pulse & Neon Boundary */
+@keyframes ob-atm-pulse {
+  0%, 100% {
+    box-shadow: inset 0 0 15px rgba(69, 184, 255, 0.15), 0 0 12px rgba(45, 212, 191, 0.25);
+    border-color: rgba(69, 184, 255, 0.7);
+  }
+  50% {
+    box-shadow: inset 0 0 25px rgba(69, 184, 255, 0.28), 0 0 20px rgba(45, 212, 191, 0.45);
+    border-color: rgba(45, 212, 191, 0.9);
+  }
+}
+
+.ob-atm-row {
+  background: linear-gradient(90deg, rgba(69, 184, 255, 0.08) 0%, rgba(45, 212, 191, 0.12) 50%, rgba(69, 184, 255, 0.08) 100%) !important;
+  animation: ob-atm-pulse 3s ease-in-out infinite;
+  border-top: 1px solid rgba(69, 184, 255, 0.6) !important;
+  border-bottom: 1px solid rgba(69, 184, 255, 0.6) !important;
+}
+
+/* Max Pain Amber Beacon */
+@keyframes ob-pain-beacon {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 176, 32, 0.3), inset 0 0 6px rgba(255, 176, 32, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(255, 176, 32, 0.6), inset 0 0 12px rgba(255, 176, 32, 0.4);
+  }
+}
+
+.ob-maxpain-badge {
+  background: rgba(255, 176, 32, 0.15);
+  border: 1px solid rgba(255, 176, 32, 0.5);
+  color: var(--ob-amber);
+  animation: ob-pain-beacon 2.5s ease-in-out infinite;
+}
+
+/* Call Wall & Put Wall Neon Markers */
+.ob-callwall-badge {
+  background: rgba(255, 77, 103, 0.15);
+  border: 1px solid rgba(255, 77, 103, 0.5);
+  color: var(--ob-bear);
+  box-shadow: 0 0 12px rgba(255, 77, 103, 0.3);
+}
+
+.ob-putwall-badge {
+  background: rgba(25, 229, 140, 0.15);
+  border: 1px solid rgba(25, 229, 140, 0.5);
+  color: var(--ob-bull);
+  box-shadow: 0 0 12px rgba(25, 229, 140, 0.3);
+}
+
+/* Buildup Classifiers */
+.ob-buildup-long {
+  background: rgba(25, 229, 140, 0.12);
+  border: 1px solid rgba(25, 229, 140, 0.35);
+  color: #19E58C;
+}
+
+.ob-buildup-short {
+  background: rgba(255, 77, 103, 0.12);
+  border: 1px solid rgba(255, 77, 103, 0.35);
+  color: #FF4D67;
+}
+
+.ob-buildup-cover {
+  background: rgba(69, 184, 255, 0.12);
+  border: 1px solid rgba(69, 184, 255, 0.35);
+  color: #45B8FF;
+}
+
+.ob-buildup-unwind {
+  background: rgba(255, 176, 32, 0.12);
+  border: 1px solid rgba(255, 176, 32, 0.35);
+  color: #FFB020;
+}
+
+/* Call / Put Depth Meters */
+.ob-depth-call {
+  background: linear-gradient(270deg, rgba(25, 229, 140, 0.35) 0%, rgba(25, 229, 140, 0.05) 100%);
+  border-left: 2px solid var(--ob-bull);
+}
+
+.ob-depth-put {
+  background: linear-gradient(90deg, rgba(255, 77, 103, 0.35) 0%, rgba(255, 77, 103, 0.05) 100%);
+  border-right: 2px solid var(--ob-bear);
+}
+
+/* Neon Action Buttons */
+.ob-btn-bull {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ob-btn-bull:hover {
+  box-shadow: 0 0 22px rgba(25, 229, 140, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.ob-btn-bear {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  box-shadow: 0 0 14px rgba(244, 63, 94, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ob-btn-bear:hover {
+  box-shadow: 0 0 22px rgba(255, 77, 103, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+

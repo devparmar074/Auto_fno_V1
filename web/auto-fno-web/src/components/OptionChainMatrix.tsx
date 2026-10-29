@@ -36,31 +36,34 @@ export const OptionChainMatrix: React.FC<OptionChainMatrixProps> = ({
   const maxPutOi = Math.max(...strikes.map((s) => s.put?.openInterest || 0), 1);
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl mb-4">
+    <div className="ob-panel rounded-2xl overflow-hidden shadow-2xl mb-4 border border-[#1A212D] relative">
       {/* Header and Controls */}
-      <div className="bg-slate-950 px-4 py-3 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center space-x-3">
+      <div className="bg-[#06080C]/90 px-4 py-3 border-b border-[#1A212D] flex flex-wrap items-center justify-between gap-3 relative overflow-hidden">
+        {/* Scanner Radar Beam in Option Chain Header */}
+        <div className="ob-scanner-beam" />
+
+        <div className="flex items-center space-x-3 relative z-10">
           <h2 className="text-sm font-extrabold text-white font-mono uppercase tracking-wider flex items-center gap-2">
-            <span>REAL-TIME OPTION CHAIN</span>
-            <span className="text-xs px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500/30 text-cyan-400">
-              {chain.underlyingSymbol} {chain.expiryDate}
+            <span className="ob-grad-brand">REAL-TIME OPTION CHAIN</span>
+            <span className="text-xs px-2 py-0.5 rounded bg-[#06080C] border border-cyan-500/40 text-[#45B8FF] shadow-[0_0_10px_rgba(69,184,255,0.2)]">
+              {chain.underlyingSymbol} • {chain.expiryDate}
             </span>
           </h2>
         </div>
 
         {/* Filter Buttons */}
-        <div className="flex items-center space-x-2">
-          <span className="text-xs text-slate-400 flex items-center gap-1">
-            <Filter className="w-3.5 h-3.5" /> Range:
+        <div className="flex items-center space-x-2 relative z-10">
+          <span className="text-xs text-slate-400 flex items-center gap-1 font-mono">
+            <Filter className="w-3.5 h-3.5 text-[#45B8FF]" /> Range:
           </span>
-          <div className="bg-slate-900 p-0.5 rounded-lg border border-slate-800 flex items-center">
+          <div className="bg-[#06080C] p-0.5 rounded-lg border border-[#1A212D] flex items-center shadow-inner">
             {(['5', '10', '15', 'all'] as const).map((r) => (
               <button
                 key={r}
                 onClick={() => setStrikeFilter(r)}
-                className={`px-2.5 py-0.5 rounded text-[11px] font-mono font-bold transition ${
+                className={`px-2.5 py-0.5 rounded text-[11px] font-mono font-bold transition ob-hover-lift ${
                   strikeFilter === r
-                    ? 'bg-cyan-600 text-white'
+                    ? 'bg-gradient-to-r from-[#0284C7] to-[#0EA5E9] text-white shadow-[0_0_10px_rgba(14,165,233,0.4)]'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -75,19 +78,19 @@ export const OptionChainMatrix: React.FC<OptionChainMatrixProps> = ({
       <div className="overflow-x-auto max-h-[580px] overflow-y-auto">
         <table className="w-full border-collapse text-xs font-mono text-left select-none">
           {/* Main Column Group Headers */}
-          <thead className="bg-slate-950/90 sticky top-0 z-20 backdrop-blur-sm border-b border-slate-800 text-slate-400">
+          <thead className="bg-[#06080C]/95 sticky top-0 z-20 backdrop-blur-md border-b border-[#1A212D] text-slate-400">
             <tr>
-              <th colSpan={7} className="py-1.5 px-3 text-center text-emerald-400 font-bold border-r border-slate-800 bg-emerald-950/20">
+              <th colSpan={7} className="py-2 px-3 text-center text-[#19E58C] font-bold border-r border-[#1A212D] bg-[#19E58C]/[0.06] tracking-wider">
                 CALL OPTIONS (CE)
               </th>
-              <th className="py-1.5 px-4 text-center text-cyan-400 font-extrabold border-x border-slate-800 bg-slate-900">
+              <th className="py-2 px-4 text-center text-[#45B8FF] font-extrabold border-x border-[#1A212D] bg-[#0D1118] tracking-widest">
                 STRIKE
               </th>
-              <th colSpan={7} className="py-1.5 px-3 text-center text-rose-400 font-bold border-l border-slate-800 bg-rose-950/20">
+              <th colSpan={7} className="py-2 px-3 text-center text-[#FF4D67] font-bold border-l border-[#1A212D] bg-[#FF4D67]/[0.06] tracking-wider">
                 PUT OPTIONS (PE)
               </th>
             </tr>
-            <tr className="text-[10px] text-slate-400 border-b border-slate-800 bg-slate-950">
+            <tr className="text-[10px] text-slate-400 border-b border-[#1A212D] bg-[#06080C]">
               {/* Call Columns */}
               <th className="py-2 px-2 text-center">TRADE</th>
               <th className="py-2 px-2 text-right">DELTA</th>
@@ -95,13 +98,13 @@ export const OptionChainMatrix: React.FC<OptionChainMatrixProps> = ({
               <th className="py-2 px-2 text-right">VOLUME</th>
               <th className="py-2 px-2 text-right">OI (CHG%)</th>
               <th className="py-2 px-2 text-center">BUILDUP</th>
-              <th className="py-2 px-3 text-right border-r border-slate-800 font-bold text-white">LTP</th>
+              <th className="py-2 px-3 text-right border-r border-[#1A212D] font-bold text-white">LTP</th>
 
               {/* Center Strike */}
-              <th className="py-2 px-4 text-center font-extrabold text-white bg-slate-900">PRICE</th>
+              <th className="py-2 px-4 text-center font-extrabold text-white bg-[#0D1118]">PRICE</th>
 
               {/* Put Columns */}
-              <th className="py-2 px-3 text-left border-l border-slate-800 font-bold text-white">LTP</th>
+              <th className="py-2 px-3 text-left border-l border-[#1A212D] font-bold text-white">LTP</th>
               <th className="py-2 px-2 text-center">BUILDUP</th>
               <th className="py-2 px-2 text-left">OI (CHG%)</th>
               <th className="py-2 px-2 text-left">VOLUME</th>
@@ -111,7 +114,7 @@ export const OptionChainMatrix: React.FC<OptionChainMatrixProps> = ({
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-[#1A212D]/70 bg-[#06080C]/40">
             {filteredStrikes.map((s) => {
               const isAtm = s.isAtm;
               const isCallItm = spot > s.strikePrice;
@@ -123,25 +126,25 @@ export const OptionChainMatrix: React.FC<OptionChainMatrixProps> = ({
               return (
                 <tr
                   key={s.strikePrice}
-                  className={`hover:bg-slate-800/40 transition-colors ${
-                    isAtm ? 'bg-cyan-950/30 border-y-2 border-cyan-500/60 font-semibold' : ''
+                  className={`transition-colors duration-150 ${
+                    isAtm ? 'ob-atm-row' : 'hover:bg-[#11161F]/80'
                   }`}
                 >
                   {/* CALLS */}
                   {/* 1. Quick Buy/Sell Call */}
-                  <td className={`py-1 px-2 text-center ${isCallItm ? 'bg-emerald-950/10' : ''}`}>
+                  <td className={`py-1.5 px-2 text-center ${isCallItm ? 'bg-[#19E58C]/[0.04]' : ''}`}>
                     <div className="flex items-center justify-center space-x-1">
                       <button
                         onClick={() => onQuickOrder(s, 'CE', 'BUY')}
-                        className="px-1.5 py-0.5 bg-emerald-600/80 hover:bg-emerald-500 text-white rounded text-[10px] font-bold"
-                        title="Buy Call"
+                        className="px-2 py-0.5 ob-btn-bull text-white rounded text-[10px] font-bold shadow-sm"
+                        title="Buy Call Option"
                       >
                         B
                       </button>
                       <button
                         onClick={() => onQuickOrder(s, 'CE', 'SELL')}
-                        className="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] font-bold"
-                        title="Sell Call"
+                        className="px-2 py-0.5 bg-[#1A212D] hover:bg-[#242D3C] text-slate-300 rounded text-[10px] font-bold border border-slate-700/50"
+                        title="Sell Call Option"
                       >
                         S
                       </button>
@@ -149,24 +152,24 @@ export const OptionChainMatrix: React.FC<OptionChainMatrixProps> = ({
                   </td>
 
                   {/* 2. Call Delta */}
-                  <td className={`py-1 px-2 text-right ${isCallItm ? 'bg-emerald-950/10' : ''} text-slate-300`}>
+                  <td className={`py-1.5 px-2 text-right ${isCallItm ? 'bg-[#19E58C]/[0.04]' : ''} text-slate-300`}>
                     {s.call?.greeks?.delta ? s.call.greeks.delta.toFixed(2) : '—'}
                   </td>
 
                   {/* 3. Call IV */}
-                  <td className={`py-1 px-2 text-right ${isCallItm ? 'bg-emerald-950/10' : ''} text-slate-400`}>
+                  <td className={`py-1.5 px-2 text-right ${isCallItm ? 'bg-[#19E58C]/[0.04]' : ''} text-slate-400`}>
                     {s.call?.greeks?.iv ? `${s.call.greeks.iv.toFixed(1)}%` : '—'}
                   </td>
 
                   {/* 4. Call Volume */}
-                  <td className={`py-1 px-2 text-right ${isCallItm ? 'bg-emerald-950/10' : ''} text-slate-400`}>
+                  <td className={`py-1.5 px-2 text-right ${isCallItm ? 'bg-[#19E58C]/[0.04]' : ''} text-slate-400`}>
                     {s.call?.volume ? (s.call.volume / 1000).toFixed(0) + 'k' : '—'}
                   </td>
 
-                  {/* 5. Call OI with bar */}
-                  <td className={`py-1 px-2 text-right ${isCallItm ? 'bg-emerald-950/10' : ''} relative`}>
+                  {/* 5. Call OI with Depth Bar */}
+                  <td className={`py-1.5 px-2 text-right ${isCallItm ? 'bg-[#19E58C]/[0.04]' : ''} relative overflow-hidden`}>
                     <div
-                      className="absolute right-0 top-0 bottom-0 bg-emerald-500/10 z-0"
+                      className="absolute right-0 top-0 bottom-0 ob-depth-call z-0"
                       style={{ width: `${callOiBarWidth}%` }}
                     />
                     <div className="relative z-10">
@@ -174,8 +177,8 @@ export const OptionChainMatrix: React.FC<OptionChainMatrixProps> = ({
                         {s.call?.openInterest ? (s.call.openInterest / 1000).toFixed(1) + 'k' : '0'}
                       </span>
                       <span
-                        className={`text-[9px] ml-1 ${
-                          (s.call?.oiChangePercent || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                        className={`text-[9px] ml-1.5 font-bold ${
+                          (s.call?.oiChangePercent || 0) >= 0 ? 'text-[#19E58C]' : 'text-[#FF4D67]'
                         }`}
                       >
                         {(s.call?.oiChangePercent || 0) >= 0 ? '+' : ''}
@@ -185,18 +188,18 @@ export const OptionChainMatrix: React.FC<OptionChainMatrixProps> = ({
                   </td>
 
                   {/* 6. Call Buildup Badge */}
-                  <td className={`py-1 px-2 text-center ${isCallItm ? 'bg-emerald-950/10' : ''}`}>
+                  <td className={`py-1.5 px-2 text-center ${isCallItm ? 'bg-[#19E58C]/[0.04]' : ''}`}>
                     <span
-                      className={`text-[9px] px-1 py-0.5 rounded font-bold ${
+                      className={`text-[9px] px-1.5 py-0.5 rounded font-extrabold tracking-wider ${
                         s.call?.buildup === 'LongBuildup'
-                          ? 'bg-emerald-500/20 text-emerald-400'
+                          ? 'ob-buildup-long'
                           : s.call?.buildup === 'ShortBuildup'
-                          ? 'bg-rose-500/20 text-rose-400'
+                          ? 'ob-buildup-short'
                           : s.call?.buildup === 'ShortCovering'
-                          ? 'bg-cyan-500/20 text-cyan-400'
+                          ? 'ob-buildup-cover'
                           : s.call?.buildup === 'LongUnwinding'
-                          ? 'bg-amber-500/20 text-amber-400'
-                          : 'text-slate-400'
+                          ? 'ob-buildup-unwind'
+                          : 'text-slate-500'
                       }`}
                     >
                       {s.call?.buildup === 'LongBuildup'
@@ -212,48 +215,56 @@ export const OptionChainMatrix: React.FC<OptionChainMatrixProps> = ({
                   </td>
 
                   {/* 7. Call LTP */}
-                  <td className={`py-1 px-3 text-right font-bold border-r border-slate-800 ${isCallItm ? 'bg-emerald-950/20 text-emerald-300' : 'text-white'}`}>
+                  <td className={`py-1.5 px-3 text-right font-bold border-r border-[#1A212D] ${isCallItm ? 'bg-[#19E58C]/[0.08] text-[#19E58C]' : 'text-white'}`}>
                     ₹{s.call?.ltp ? s.call.ltp.toFixed(2) : '0.00'}
                   </td>
 
                   {/* CENTER STRIKE */}
-                  <td className={`py-1.5 px-4 text-center font-extrabold border-x border-slate-800 bg-slate-950 relative ${isAtm ? 'text-cyan-400' : 'text-white'}`}>
+                  <td className={`py-2 px-4 text-center font-extrabold border-x border-[#1A212D] bg-[#0D1118] relative ${isAtm ? 'text-[#45B8FF]' : 'text-white'}`}>
                     <div className="flex items-center justify-center space-x-1.5">
-                      <span>{s.strikePrice.toLocaleString('en-IN')}</span>
+                      <span className="tracking-tight text-sm drop-shadow-sm">{s.strikePrice.toLocaleString('en-IN')}</span>
                       {isAtm && (
-                        <span className="text-[9px] bg-cyan-500/30 text-cyan-300 px-1 rounded font-bold">ATM</span>
+                        <span className="text-[9px] bg-cyan-500/20 text-[#45B8FF] border border-cyan-400/40 px-1 rounded font-black shadow-[0_0_8px_rgba(69,184,255,0.4)]">
+                          ATM
+                        </span>
                       )}
                       {s.isMaxPain && (
-                        <span className="text-[9px] bg-amber-500/30 text-amber-300 px-1 rounded font-bold">PAIN</span>
+                        <span className="text-[9px] ob-maxpain-badge px-1 rounded font-black">
+                          PAIN
+                        </span>
                       )}
                       {s.isCallWall && (
-                        <span className="text-[9px] bg-rose-500/30 text-rose-300 px-1 rounded font-bold">RES</span>
+                        <span className="text-[9px] ob-callwall-badge px-1 rounded font-black">
+                          RES
+                        </span>
                       )}
                       {s.isPutWall && (
-                        <span className="text-[9px] bg-emerald-500/30 text-emerald-300 px-1 rounded font-bold">SUP</span>
+                        <span className="text-[9px] ob-putwall-badge px-1 rounded font-black">
+                          SUP
+                        </span>
                       )}
                     </div>
                   </td>
 
                   {/* PUTS */}
                   {/* 8. Put LTP */}
-                  <td className={`py-1 px-3 text-left font-bold border-l border-slate-800 ${isPutItm ? 'bg-rose-950/20 text-rose-300' : 'text-white'}`}>
+                  <td className={`py-1.5 px-3 text-left font-bold border-l border-[#1A212D] ${isPutItm ? 'bg-[#FF4D67]/[0.08] text-[#FF4D67]' : 'text-white'}`}>
                     ₹{s.put?.ltp ? s.put.ltp.toFixed(2) : '0.00'}
                   </td>
 
                   {/* 9. Put Buildup Badge */}
-                  <td className={`py-1 px-2 text-center ${isPutItm ? 'bg-rose-950/10' : ''}`}>
+                  <td className={`py-1.5 px-2 text-center ${isPutItm ? 'bg-[#FF4D67]/[0.04]' : ''}`}>
                     <span
-                      className={`text-[9px] px-1 py-0.5 rounded font-bold ${
+                      className={`text-[9px] px-1.5 py-0.5 rounded font-extrabold tracking-wider ${
                         s.put?.buildup === 'LongBuildup'
-                          ? 'bg-rose-500/20 text-rose-400'
+                          ? 'ob-buildup-short'
                           : s.put?.buildup === 'ShortBuildup'
-                          ? 'bg-emerald-500/20 text-emerald-400'
+                          ? 'ob-buildup-long'
                           : s.put?.buildup === 'ShortCovering'
-                          ? 'bg-amber-500/20 text-amber-400'
+                          ? 'ob-buildup-unwind'
                           : s.put?.buildup === 'LongUnwinding'
-                          ? 'bg-cyan-500/20 text-cyan-400'
-                          : 'text-slate-400'
+                          ? 'ob-buildup-cover'
+                          : 'text-slate-500'
                       }`}
                     >
                       {s.put?.buildup === 'LongBuildup'
@@ -268,10 +279,10 @@ export const OptionChainMatrix: React.FC<OptionChainMatrixProps> = ({
                     </span>
                   </td>
 
-                  {/* 10. Put OI with bar */}
-                  <td className={`py-1 px-2 text-left ${isPutItm ? 'bg-rose-950/10' : ''} relative`}>
+                  {/* 10. Put OI with Depth Bar */}
+                  <td className={`py-1.5 px-2 text-left ${isPutItm ? 'bg-[#FF4D67]/[0.04]' : ''} relative overflow-hidden`}>
                     <div
-                      className="absolute left-0 top-0 bottom-0 bg-rose-500/10 z-0"
+                      className="absolute left-0 top-0 bottom-0 ob-depth-put z-0"
                       style={{ width: `${putOiBarWidth}%` }}
                     />
                     <div className="relative z-10">
@@ -279,8 +290,8 @@ export const OptionChainMatrix: React.FC<OptionChainMatrixProps> = ({
                         {s.put?.openInterest ? (s.put.openInterest / 1000).toFixed(1) + 'k' : '0'}
                       </span>
                       <span
-                        className={`text-[9px] ml-1 ${
-                          (s.put?.oiChangePercent || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                        className={`text-[9px] ml-1.5 font-bold ${
+                          (s.put?.oiChangePercent || 0) >= 0 ? 'text-[#19E58C]' : 'text-[#FF4D67]'
                         }`}
                       >
                         {(s.put?.oiChangePercent || 0) >= 0 ? '+' : ''}
@@ -290,34 +301,34 @@ export const OptionChainMatrix: React.FC<OptionChainMatrixProps> = ({
                   </td>
 
                   {/* 11. Put Volume */}
-                  <td className={`py-1 px-2 text-left ${isPutItm ? 'bg-rose-950/10' : ''} text-slate-400`}>
+                  <td className={`py-1.5 px-2 text-left ${isPutItm ? 'bg-[#FF4D67]/[0.04]' : ''} text-slate-400`}>
                     {s.put?.volume ? (s.put.volume / 1000).toFixed(0) + 'k' : '—'}
                   </td>
 
                   {/* 12. Put IV */}
-                  <td className={`py-1 px-2 text-left ${isPutItm ? 'bg-rose-950/10' : ''} text-slate-400`}>
+                  <td className={`py-1.5 px-2 text-left ${isPutItm ? 'bg-[#FF4D67]/[0.04]' : ''} text-slate-400`}>
                     {s.put?.greeks?.iv ? `${s.put.greeks.iv.toFixed(1)}%` : '—'}
                   </td>
 
                   {/* 13. Put Delta */}
-                  <td className={`py-1 px-2 text-left ${isPutItm ? 'bg-rose-950/10' : ''} text-slate-300`}>
+                  <td className={`py-1.5 px-2 text-left ${isPutItm ? 'bg-[#FF4D67]/[0.04]' : ''} text-slate-300`}>
                     {s.put?.greeks?.delta ? s.put.greeks.delta.toFixed(2) : '—'}
                   </td>
 
                   {/* 14. Quick Buy/Sell Put */}
-                  <td className={`py-1 px-2 text-center ${isPutItm ? 'bg-rose-950/10' : ''}`}>
+                  <td className={`py-1.5 px-2 text-center ${isPutItm ? 'bg-[#FF4D67]/[0.04]' : ''}`}>
                     <div className="flex items-center justify-center space-x-1">
                       <button
                         onClick={() => onQuickOrder(s, 'PE', 'BUY')}
-                        className="px-1.5 py-0.5 bg-rose-600/80 hover:bg-rose-500 text-white rounded text-[10px] font-bold"
-                        title="Buy Put"
+                        className="px-2 py-0.5 ob-btn-bear text-white rounded text-[10px] font-bold shadow-sm"
+                        title="Buy Put Option"
                       >
                         B
                       </button>
                       <button
                         onClick={() => onQuickOrder(s, 'PE', 'SELL')}
-                        className="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] font-bold"
-                        title="Sell Put"
+                        className="px-2 py-0.5 bg-[#1A212D] hover:bg-[#242D3C] text-slate-300 rounded text-[10px] font-bold border border-slate-700/50"
+                        title="Sell Put Option"
                       >
                         S
                       </button>

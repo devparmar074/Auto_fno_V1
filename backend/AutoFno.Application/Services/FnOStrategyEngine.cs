@@ -28,91 +28,9 @@ public class FnOStrategyEngine : IFnOStrategyEngine
             spot = spotCandles.Last().Close;
         }
 
-        // 1. Spot Technical Indicators
+        // 1. Spot Technical Indicators & Pillar 4: Spot Trend & Momentum Score (Max 25 pts)
         var tech = SpotIndicatorCalculator.Calculate(spotCandles);
 
-        // 2. Pillar 1: PCR Sentiment Score (Max 25 pts)
-        decimal pcrScore = 0;
-        var oiPcr = pcrSummary.OiPcr;
-        if (oiPcr >= 1.30m)
-        {
-            pcrScore = 20m;
-            if (oiPcr >= 1.45m && oiPcr <= 1.65m) pcrScore = 25m;
-            else if (oiPcr > 1.65m) pcrScore = 15m; // Exhaustion fade penalty
-        }
-        else if (oiPcr >= 1.05m)
-        {
-            pcrScore = 12m;
-        }
-        else if (oiPcr >= 0.90m)
-        {
-            pcrScore = 0m; // Neutral
-        }
-        else if (oiPcr >= 0.70m)
-        {
-            pcrScore = -12m;
-        }
-        else
-        {
-            pcrScore = -20m;
-            if (oiPcr <= 0.55m && oiPcr >= 0.40m) pcrScore = -25m;
-            else if (oiPcr < 0.40m) pcrScore = -15m; // Short squeeze bounce risk
-        }
-
-        // Volume PCR bonus
-        if (pcrSummary.VolumePcr >= 1.15m && pcrScore > 0) pcrScore = Math.Min(25m, pcrScore + 3m);
-        else if (pcrSummary.VolumePcr <= 0.85m && pcrScore < 0) pcrScore = Math.Max(-25m, pcrScore - 3m);
-
-        // 3. Pillar 2: Open Interest & Max Pain Gravity Score (Max 25 pts)
-        decimal oiScore = 0;
-        var totalBullishBuildup = pcrSummary.LongBuildupCount + pcrSummary.ShortCoveringCount;
-        var totalBearishBuildup = pcrSummary.ShortBuildupCount + pcrSummary.LongUnwindingCount;
-        var netBuildup = totalBullishBuildup - totalBearishBuildup;
-
-        if (netBuildup > 3) oiScore += 12m;
-        else if (netBuildup < -3) oiScore -= 12m;
-
-        // Fresh OI addition (Put Writing vs Call Writing)
-        if (pcrSummary.PutOiChangeTotal > pcrSummary.CallOiChangeTotal * 1.2m) oiScore += 8m;
-        else if (pcrSummary.CallOiChangeTotal > pcrSummary.PutOiChangeTotal * 1.2m) oiScore -= 8m;
-
-        // Max Pain distance gravity
-        if (maxPain.MaxPainStrike > 0)
-        {
-            var diff = spot - maxPain.MaxPainStrike;
-            if (diff > 0 && pcrScore > 0) oiScore += 5m; // Spot holding above max pain with bullish PCR
-            else if (diff < 0 && pcrScore < 0) oiScore -= 5m;
-        }
-        oiScore = Math.Clamp(oiScore, -25m, 25m);
-
-        // 4. Pillar 3: Option Greeks & IV Regime Score (Max 25 pts)
-        decimal greeksScore = 0;
-        var atmStrikeObj = optionChain.Strikes.FirstOrDefault(s => s.IsAtm) 
-            ?? optionChain.Strikes.OrderBy(s => Math.Abs(s.StrikePrice - spot)).FirstOrDefault();
-
-        decimal atmCallDelta = atmStrikeObj?.Call?.Greeks?.Delta ?? 0.50m;
-        decimal atmPutDelta = atmStrikeObj?.Put?.Greeks?.Delta ?? -0.50m;
-        decimal atmIv = atmStrikeObj?.Call?.Greeks?.Iv ?? 14.0m;
-
-        // Delta bias: If Call Delta is > 0.52 (spot trending higher into call side)
-        if (atmCallDelta >= 0.53m) greeksScore += 10m;
-        else if (atmCallDelta <= 0.47m) greeksScore -= 10m;
-
-        // IV Regime
-        if (atmIv >= 11m && atmIv <= 18m)
-        {
-            // Stable IV favors trend continuation
-            if (pcrScore > 0) greeksScore += 10m;
-            else if (pcrScore < 0) greeksScore -= 10m;
-        }
-        else if (atmIv > 24m)
-        {
-            // High IV: volatile swings, slight compression penalty
-            greeksScore -= 5m;
-        }
-        greeksScore = Math.Clamp(greeksScore, -25m, 25m);
-
-        // 5. Pillar 4: Spot Trend & Momentum Score (Max 25 pts)
         decimal trendScore = 0;
         if (spot > tech.Ema9 && tech.Ema9 > tech.Ema21) trendScore += 12m;
         else if (spot < tech.Ema9 && tech.Ema9 < tech.Ema21) trendScore -= 12m;
@@ -127,7 +45,121 @@ public class FnOStrategyEngine : IFnOStrategyEngine
 
         trendScore = Math.Clamp(trendScore, -25m, 25m);
 
-        // 6. Aggregate Total Score (-100 to +100)
+        // 2. Pillar 1: PCR Sentiment Score (Max 25 pts)
+        // Continuous, sensitive quantitative model around Indian Index 1.00 baseline
+        decimal pcrScore = 0;
+        var oiPcr = pcrSummary.OiPcr;
+
+        if (oiPcr >= 1.00m)
+        {
+            // Bullish Put writing floor dominance: scales smoothly up to +20 pts
+            pcrScore = Math.Min(20m, (oiPcr - 1.00m) * 40m);
+            if (oiPcr >= 1.45m && oiPcr <= 1.65m) pcrScore = 22m;
+            else if (oiPcr > 1.65m) pcrScore = 14m; // Overbought exhaustion fade penalty
+        }
+        else
+        {
+            // Bearish Call writing ceiling dominance: scales smoothly down to -20 pts
+            pcrScore = Math.Max(-20m, (oiPcr - 1.00m) * 40m);
+            if (oiPcr <= 0.55m && oiPcr >= 0.40m) pcrScore = -22m;
+            else if (oiPcr < 0.40m) pcrScore = -14m; // Oversold short-squeeze bounce risk
+        }
+
+        // Intraday Volume PCR Confluence / Divergence (Dynamic, independent of pcrScore)
+        if (pcrSummary.VolumePcr >= 1.10m) pcrScore += 3m;
+        else if (pcrSummary.VolumePcr <= 0.90m) pcrScore -= 3m;
+
+        // ATM PCR Sentiment (Immediate near-the-money options battleground)
+        if (pcrSummary.AtmPcr >= 1.05m) pcrScore += 2m;
+        else if (pcrSummary.AtmPcr <= 0.95m) pcrScore -= 2m;
+
+        // PCR Slope / Velocity (Is PCR expanding or contracting intraday?)
+        if (pcrSummary.PcrSlope > 0.015m) pcrScore += 2m;
+        else if (pcrSummary.PcrSlope < -0.015m) pcrScore -= 2m;
+
+        pcrScore = Math.Clamp(Math.Round(pcrScore, 1), -25m, 25m);
+
+        // 3. Pillar 2: Open Interest & Max Pain Gravity Score (Max 25 pts)
+        decimal oiScore = 0;
+        var totalBullishBuildup = pcrSummary.LongBuildupCount + pcrSummary.ShortCoveringCount;
+        var totalBearishBuildup = pcrSummary.ShortBuildupCount + pcrSummary.LongUnwindingCount;
+        var netBuildup = totalBullishBuildup - totalBearishBuildup;
+
+        if (netBuildup > 3) oiScore += 12m;
+        else if (netBuildup < -3) oiScore -= 12m;
+        else oiScore += netBuildup * 2m; // Micro buildup advantage
+
+        // Fresh OI addition (Put Writing vs Call Writing)
+        if (pcrSummary.PutOiChangeTotal > pcrSummary.CallOiChangeTotal * 1.15m) oiScore += 8m;
+        else if (pcrSummary.CallOiChangeTotal > pcrSummary.PutOiChangeTotal * 1.15m) oiScore -= 8m;
+
+        // Max Pain distance gravity
+        if (maxPain.MaxPainStrike > 0)
+        {
+            var diff = spot - maxPain.MaxPainStrike;
+            if (diff > 5m) oiScore += 5m; // Spot holding above max pain (bullish drift)
+            else if (diff < -5m) oiScore -= 5m; // Spot pinned below max pain (bearish drift)
+        }
+        oiScore = Math.Clamp(Math.Round(oiScore, 1), -25m, 25m);
+
+        // 4. Pillar 3: Option Greeks & IV Regime Score (Max 25 pts)
+        // Decoupled from pcrScore: directly evaluates Delta asymmetry, IV regime, Volatility Skew & Gamma
+        decimal greeksScore = 0;
+        var atmStrikeObj = optionChain.Strikes.FirstOrDefault(s => s.IsAtm) 
+            ?? optionChain.Strikes.OrderBy(s => Math.Abs(s.StrikePrice - spot)).FirstOrDefault();
+
+        decimal atmCallDelta = atmStrikeObj?.Call?.Greeks?.Delta ?? 0.50m;
+        decimal atmPutDelta = atmStrikeObj?.Put?.Greeks?.Delta ?? -0.50m;
+        decimal atmCallIv = atmStrikeObj?.Call?.Greeks?.Iv ?? 14.0m;
+        decimal atmPutIv = atmStrikeObj?.Put?.Greeks?.Iv ?? 14.0m;
+        decimal atmIv = (atmCallIv + atmPutIv) / 2m;
+        if (atmIv <= 0) atmIv = 14.0m;
+
+        // 4A. Delta Asymmetry & Directional Edge (Max +/- 10 pts)
+        // If Call Delta is above 0.50, spot has pushed above ATM strike center into call ITM territory
+        var deltaSkew = atmCallDelta - 0.50m;
+        if (atmCallDelta >= 0.52m) greeksScore += 8m;
+        else if (atmCallDelta <= 0.48m) greeksScore -= 8m;
+        else greeksScore += Math.Round(deltaSkew * 100m, 1); // Linear micro-tilt between 0.48 and 0.52
+
+        // 4B. IV Regime & Volatility Environment (Max +/- 10 pts)
+        // Grounded in spot momentum & market volatility state
+        if (atmIv >= 11m && atmIv <= 18m)
+        {
+            // Stable / Low-to-Medium IV environment: ideal for directional trend continuation
+            if (trendScore > 0 || tech.IsSupertrendBullish) greeksScore += 8m;
+            else if (trendScore < 0 || !tech.IsSupertrendBullish) greeksScore -= 8m;
+            else greeksScore += 2m; // Stable environment baseline
+        }
+        else if (atmIv > 22m)
+        {
+            // High IV regime: Options expensive, elevated IV crush risk
+            greeksScore -= 6m;
+        }
+        else if (atmIv < 11m)
+        {
+            // Compressed low IV: Options cheap, primed for breakout volatility expansion
+            if (trendScore >= 0) greeksScore += 6m;
+            else greeksScore -= 6m;
+        }
+
+        // 4C. IV Volatility Skew (Call IV vs Put IV) (Max +/- 5 pts)
+        // If Put IV > Call IV by > 0.8%, put hedging / fear pricing creates bearish skew
+        var ivSkew = atmCallIv - atmPutIv;
+        if (ivSkew >= 0.8m) greeksScore += 4m; // Call skew (bullish speculative bidding)
+        else if (ivSkew <= -0.8m) greeksScore -= 4m; // Put skew (downside fear pricing)
+
+        // 4D. Gamma Acceleration
+        decimal atmGamma = atmStrikeObj?.Call?.Greeks?.Gamma ?? 0.0003m;
+        if (atmGamma >= 0.00045m)
+        {
+            if (greeksScore > 0) greeksScore += 3m;
+            else if (greeksScore < 0) greeksScore -= 3m;
+        }
+
+        greeksScore = Math.Clamp(Math.Round(greeksScore, 1), -25m, 25m);
+
+        // 5. Aggregate Total Score (-100 to +100)
         var totalScore = Math.Clamp(pcrScore + oiScore + greeksScore + trendScore, -100m, 100m);
 
         // 7. Recommendation and Recommended Strike Selection

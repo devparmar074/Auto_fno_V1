@@ -354,7 +354,12 @@ export function App() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-slate-950">
+      <div className="min-h-screen bg-[#06080C] text-[#EDF2F9] flex flex-col font-sans selection:bg-[#2DD4BF] selection:text-[#06080C] relative overflow-hidden ob-grid-bg">
+        {/* Quantum Ambient Lighting Bloom */}
+        <div className="pointer-events-none absolute -top-40 -left-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl" />
+        <div className="pointer-events-none absolute -top-40 -right-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl" />
+        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-emerald-500/[0.02] rounded-full blur-[140px]" />
+
         {/* Navigation & Control Header */}
         <HeaderBar
           activeIndex={activeIndex}

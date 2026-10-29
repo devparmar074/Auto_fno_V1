@@ -1,47 +1,70 @@
 @import "tailwindcss";
+@import "./styles/orderblock-animations.css";
 
-@layer base {
-  body {
-    background-color: #0b0f19;
-    color: #e2e8f0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-  }
+:root {
+  color-scheme: dark;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --font-num: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-/* Custom scrollbars for high density financial terminal */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--ob-bg, #06080C);
+  color: #EDF2F9;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  background-position: center top;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom Thin Neon Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #242D3C transparent;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
-  background: #0b0f19;
+  background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 3px;
+  background: #242D3C;
+  border-radius: 99px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #434E61;
 }
 
-/* Tick Pulses */
-@keyframes flashGreen {
-  0% { background-color: rgba(16, 185, 129, 0.45); }
-  100% { background-color: transparent; }
+/* Numerical Tabular Figures */
+.num, .font-mono {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
-@keyframes flashRed {
-  0% { background-color: rgba(239, 68, 68, 0.45); }
-  100% { background-color: transparent; }
-}
-
+/* Backward compatible tick pulses mapped to OrderBlock keyframes */
 .tick-up {
-  animation: flashGreen 0.7s ease-out;
+  animation: ob-tick-flash-up 0.85s ease-out;
 }
 
 .tick-down {
-  animation: flashRed 0.7s ease-out;
+  animation: ob-tick-flash-down 0.85s ease-out;
 }
+
