@@ -166,15 +166,15 @@ public static class SpotIndicatorCalculator
 
             if (i > 0)
             {
-                if (lowerBand[i] < lowerBand[i - 1] || (double)candles[i - 1].Close < lowerBand[i - 1])
+                if (lowerBand[i] > lowerBand[i - 1] || (double)candles[i - 1].Close < lowerBand[i - 1])
                     lowerBand[i] = lowerBand[i];
                 else
-                    lowerBand[i] = Math.Max(lowerBand[i], lowerBand[i - 1]);
+                    lowerBand[i] = lowerBand[i - 1];
 
-                if (upperBand[i] > upperBand[i - 1] || (double)candles[i - 1].Close > upperBand[i - 1])
+                if (upperBand[i] < upperBand[i - 1] || (double)candles[i - 1].Close > upperBand[i - 1])
                     upperBand[i] = upperBand[i];
                 else
-                    upperBand[i] = Math.Min(upperBand[i], upperBand[i - 1]);
+                    upperBand[i] = upperBand[i - 1];
 
                 double prevClose = (double)candles[i - 1].Close;
                 double currClose = (double)candles[i].Close;

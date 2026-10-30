@@ -1,7 +1,9 @@
 using AutoFno.Application.Interfaces;
+using AutoFno.Application.V2.Interfaces;
 using AutoFno.Domain.Entities;
 using AutoFno.Domain.Enums;
 using AutoFno.Domain.Models;
+using AutoFno.Domain.V2;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -72,6 +74,21 @@ public class FnOStrategyExecutionBackgroundService : BackgroundService
                     SetupRationale = score.SetupRationale,
                     CreatedAtUtc = DateTime.UtcNow
                 }, stoppingToken);
+
+                // Quantitative Conviction Engine V2 (Shadow/Paper Evaluation - Fully Isolated from V1)
+                try
+                {
+                    var v2Coordinator = scope.ServiceProvider.GetService<IConvictionSystemV2Coordinator>();
+                    var v2Config = scope.ServiceProvider.GetService<QuantitativeConvictionV2Config>();
+                    if (v2Coordinator != null && v2Config != null && v2Config.EnableV2)
+                    {
+                        await v2Coordinator.EvaluateV2SetupAsync(chain, pcr, maxPain, candles, stoppingToken);
+                    }
+                }
+                catch (Exception v2Ex)
+                {
+                    _logger.LogWarning(v2Ex, "Non-critical error during V2 shadow evaluation; V1 operation continues normally.");
+                }
 
                 // Check Bot Execution Modes
                 if (!config.IsKillSwitchActive && (DateTime.UtcNow - _lastExecutionTime).TotalMinutes >= 2)

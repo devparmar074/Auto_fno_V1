@@ -5,6 +5,7 @@ using AutoFno.Infrastructure.Data;
 using AutoFno.Infrastructure.Data.Repositories;
 using AutoFno.Infrastructure.Services;
 using AutoFno.Infrastructure.Upstox;
+using AutoFno.Infrastructure.V2;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -44,6 +45,9 @@ public static class DependencyInjection
         // Background Workers
         services.AddHostedService<FnOMarketFeedBackgroundService>();
         services.AddHostedService<FnOStrategyExecutionBackgroundService>();
+
+        // Quantitative Conviction Engine V2 Services
+        services.AddV2Services(configuration);
 
         return services;
     }

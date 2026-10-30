@@ -3,4 +3,5 @@
   <Project Path="AutoFno.Application/AutoFno.Application.csproj" />
   <Project Path="AutoFno.Domain/AutoFno.Domain.csproj" />
   <Project Path="AutoFno.Infrastructure/AutoFno.Infrastructure.csproj" />
+  <Project Path="AutoFno.Tests/AutoFno.Tests.csproj" />
 </Solution>
