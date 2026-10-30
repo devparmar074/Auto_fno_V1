@@ -2,6 +2,16 @@ using System;
 
 namespace AutoFno.Domain.V2;
 
+public class FrictionModelConfig
+{
+    public decimal BrokeragePerTrade { get; set; } = 40.0m;
+    public decimal ExchangeTurnoverRate { get; set; } = 0.00053m;
+    public decimal SttRate { get; set; } = 0.001m;
+    public decimal GstRate { get; set; } = 0.18m;
+    public decimal StampDutyRate { get; set; } = 0.00003m;
+    public decimal SlippagePercent { get; set; } = 0.25m;
+}
+
 public class QuantitativeConvictionV2Config
 {
     // Feature Flags - Strictly false by default
@@ -65,6 +75,8 @@ public class QuantitativeConvictionV2Config
     public decimal EstimatedSlippagePercent { get; set; } = 0.25m;
     public decimal BrokeragePerOrder { get; set; } = 20.0m;
     public decimal ExchangeTaxesPercent { get; set; } = 0.06m;
+
+    public FrictionModelConfig FrictionModel { get; set; } = new();
 
     // Trade Management Parameters
     public decimal PartialProfitBookingRMultiple { get; set; } = 1.0m;

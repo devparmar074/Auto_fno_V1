@@ -19,7 +19,7 @@ public static class V2DependencyInjection
         }
         services.AddSingleton(v2Config);
 
-        // Calculation Engines (Stateless singletons)
+        // Core 4-Pillar Calculation Engines (Singletons)
         services.AddSingleton<IMarketDataValidationEngine, MarketDataValidationEngine>();
         services.AddSingleton<IPCRAnalysisEngine, PCRAnalysisEngine>();
         services.AddSingleton<IOIAnalysisEngine, OIAnalysisEngine>();
@@ -30,9 +30,19 @@ public static class V2DependencyInjection
         services.AddSingleton<IRiskManagementEngineV2, RiskManagementEngine>();
         services.AddSingleton<ITradeManagementEngineV2, TradeManagementEngine>();
         services.AddSingleton<IStrategyComparisonEngine, StrategyComparisonEngine>();
-
-        // Stateful Singletons (Shadow trade tracking, metrics, lifecycle coordination)
         services.AddSingleton<IPerformanceAnalyticsEngine, PerformanceAnalyticsEngine>();
+
+        // Maturity Levels 4 to 9 Engines
+        services.AddSingleton<IHistoricalBacktestEngine, HistoricalBacktestEngine>();
+        services.AddSingleton<IShadowPaperTradingEngine, ShadowPaperTradingEngine>();
+        services.AddSingleton<IForwardValidationEngine, ForwardValidationEngine>();
+        services.AddSingleton<IGuardedLiveExecutionEngine, GuardedLiveExecutionEngine>();
+        services.AddSingleton<IAutomatedLiveExecutionEngine, AutomatedLiveExecutionEngine>();
+        services.AddSingleton<ISelfOptimizingEngine, SelfOptimizingEngine>();
+        services.AddSingleton<ISystemHealthMonitoringEngine, SystemHealthMonitoringEngine>();
+        services.AddSingleton<ISystemMaturityDashboardEngine, SystemMaturityDashboardEngine>();
+
+        // Master Coordinator
         services.AddSingleton<IConvictionSystemV2Coordinator, ConvictionSystemV2Coordinator>();
 
         return services;

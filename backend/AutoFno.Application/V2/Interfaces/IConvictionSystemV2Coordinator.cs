@@ -24,4 +24,14 @@ public interface IConvictionSystemV2Coordinator
     V2PerformanceMetricsDto GetShadowPerformance();
     List<V2HypotheticalPosition> GetActiveShadowPositions();
     V1VsV2ComparisonDto GetComparisonReport(FnOStrategyScoreDto? v1Score);
+
+    // Sub-Engines for Maturity Levels 4 to 9
+    IHistoricalBacktestEngine BacktestEngine { get; }
+    IShadowPaperTradingEngine ShadowEngine { get; }
+    IForwardValidationEngine ForwardValidationEngine { get; }
+    IGuardedLiveExecutionEngine GuardedLiveEngine { get; }
+    IAutomatedLiveExecutionEngine AutomatedLiveEngine { get; }
+    ISelfOptimizingEngine SelfOptimizingEngine { get; }
+    ISystemHealthMonitoringEngine HealthMonitoringEngine { get; }
+    ISystemMaturityDashboardEngine MaturityDashboardEngine { get; }
 }

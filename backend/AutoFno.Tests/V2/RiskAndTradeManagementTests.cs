@@ -92,8 +92,9 @@ public class RiskAndTradeManagementTests
             EntryTimeUtc = DateTime.UtcNow
         };
 
-        // Price hits Target 1 at 116 (+1.07R milestone reached)
-        _tradeEngine.UpdatePosition(pos, currentSpot: 24650m, currentOptionPrice: 116m, DateTime.UtcNow, _config, out var exitReason);
+        // Price hits Target 1 at 116 (+1.07R milestone reached) during market hours (10:00 AM IST)
+        var marketTime = new DateTime(2026, 10, 30, 4, 30, 0, DateTimeKind.Utc);
+        _tradeEngine.UpdatePosition(pos, currentSpot: 24650m, currentOptionPrice: 116m, marketTime, _config, out var exitReason);
 
         Assert.Equal(V2ExitReason.None, exitReason); // Full position is NOT closed yet, runner continues
         Assert.True(pos.IsPartiallyExited);
@@ -123,7 +124,8 @@ public class RiskAndTradeManagementTests
         };
 
         // Price advances to Target 2 at 162
-        _tradeEngine.UpdatePosition(pos, currentSpot: 24800m, currentOptionPrice: 162m, DateTime.UtcNow, _config, out var exitReason);
+        var marketTime = new DateTime(2026, 10, 30, 4, 30, 0, DateTimeKind.Utc);
+        _tradeEngine.UpdatePosition(pos, currentSpot: 24800m, currentOptionPrice: 162m, marketTime, _config, out var exitReason);
 
         Assert.Equal(V2ExitReason.Target2Hit, exitReason);
     }
@@ -147,9 +149,9 @@ public class RiskAndTradeManagementTests
             EntryTimeUtc = DateTime.UtcNow
         };
 
-        // Price rallies to 125 (gain of 25 pts, R: 25 / 15 = 1.67R >= 1.5R threshold)
-        // Trailed stop locks at least +0.75R profit: 100 + (0.75 * 15) = 111.25
-        _tradeEngine.UpdatePosition(pos, currentSpot: 24600m, currentOptionPrice: 125m, DateTime.UtcNow, _config, out var exitReason);
+        // Price rallies to 125 (gain of 25 pts, R: 25 / 15 = 1.67R >= 1.5R threshold) during market hours
+        var marketTime = new DateTime(2026, 10, 30, 4, 30, 0, DateTimeKind.Utc);
+        _tradeEngine.UpdatePosition(pos, currentSpot: 24600m, currentOptionPrice: 125m, marketTime, _config, out var exitReason);
 
         Assert.Equal(V2ExitReason.None, exitReason);
         Assert.True(pos.StopLossPrice > 85m, "Stop-loss should have trailed upwards");

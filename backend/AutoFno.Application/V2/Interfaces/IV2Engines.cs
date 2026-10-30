@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using AutoFno.Domain.Models;
 using AutoFno.Domain.V2;
 
@@ -106,4 +108,91 @@ public interface IStrategyComparisonEngine
         FnOStrategyScoreDto? v1Score,
         V2ConvictionScoreDto? v2Score,
         V2PerformanceMetricsDto? v2Metrics);
+}
+
+// ==============================================================================
+// Level 4: Historical Backtesting Engine
+// ==============================================================================
+public interface IHistoricalBacktestEngine
+{
+    HistoricalDataQualityReport InspectDataQuality(List<HistoricalMarketSnapshot> snapshots);
+    HistoricalBacktestResult RunBacktest(List<HistoricalMarketSnapshot> snapshots, HistoricalBacktestRequest request);
+}
+
+// ==============================================================================
+// Level 5: Shadow Paper Trading Persistent Engine
+// ==============================================================================
+public interface IShadowPaperTradingEngine
+{
+    Task InitializeAsync(CancellationToken ct = default);
+    Task ProcessLiveSnapshotAsync(
+        OptionChainDto optionChain,
+        V2ConvictionScoreDto score,
+        V2TradeCandidate candidate,
+        CancellationToken ct = default);
+    Task<List<V2HypotheticalPosition>> GetActivePositionsAsync();
+    Task<List<V2HypotheticalTradeRecord>> GetHistoricalTradesAsync(int limit = 100);
+    V2PerformanceMetricsDto GetMetrics();
+}
+
+// ==============================================================================
+// Level 6: Forward Validation Framework Engine
+// ==============================================================================
+public interface IForwardValidationEngine
+{
+    ForwardValidationStatusDto GetCurrentCampaignStatus();
+    ForwardValidationStatusDto StartCampaign(ForwardValidationCampaignConfig config);
+    void RecordDailyObservation(DateTime dateUtc, List<V2HypotheticalTradeRecord> dayTrades, MarketRegime predominantRegime);
+    ForwardValidationStatusDto EvaluateAcceptanceGates();
+}
+
+// ==============================================================================
+// Level 7: Guarded Live Execution Engine
+// ==============================================================================
+public interface IGuardedLiveExecutionEngine
+{
+    GuardedExecutionTicket GenerateCandidateTicket(V2TradeCandidate candidate);
+    Task<GuardedExecutionTicket> ProcessApprovalAsync(GuardedCandidateApprovalRequest request, CancellationToken ct = default);
+    List<GuardedExecutionTicket> GetPendingTickets();
+    Task<EmergencyKillSwitchResult> TriggerEmergencyKillSwitchAsync(string reason, CancellationToken ct = default);
+}
+
+// ==============================================================================
+// Level 8: Fully Automated Live Execution Engine
+// ==============================================================================
+public interface IAutomatedLiveExecutionEngine
+{
+    AutomatedExecutionStatusDto GetStatus();
+    Task<bool> AttemptAutomatedOrderPlacementAsync(V2TradeCandidate candidate, CancellationToken ct = default);
+    Task<BrokerReconciliationReport> ReconcileBrokerPositionsAsync(CancellationToken ct = default);
+    Task CheckAndTriggerSafetyCutoffsAsync(CancellationToken ct = default);
+}
+
+// ==============================================================================
+// Level 9: Machine Learning Self-Optimizing Engine
+// ==============================================================================
+public interface ISelfOptimizingEngine
+{
+    MLFeatureVector ExtractFeatures(OptionChainDto optionChain, V2ConvictionScoreDto score, List<Candle> spotCandles, MarketRegime regime);
+    Task<MLTrainingResult> RunOptimizationAsync(List<MLFeatureVector> trainingDataset, OptimizationObjective objective, CancellationToken ct = default);
+    MLModelMetadata GetActiveModelMetadata();
+    MLDriftReport CheckForDrift(List<MLFeatureVector> recentObservations);
+    bool RollbackToBaseline();
+    bool PromoteCandidateModel(Guid candidateModelId);
+}
+
+// ==============================================================================
+// System Health Monitoring & System Maturity Dashboard
+// ==============================================================================
+public interface ISystemHealthMonitoringEngine
+{
+    SystemHealthReportDto GetHealthReport();
+    void RecordMarketDataHeartbeat(DateTime timestampUtc, int strikesCount);
+    void RecordBrokerApiHeartbeat(double latencyMs, bool isSuccess);
+    void RegisterAlert(string alertMessage);
+}
+
+public interface ISystemMaturityDashboardEngine
+{
+    SystemMaturityDashboardDto GetDashboard();
 }

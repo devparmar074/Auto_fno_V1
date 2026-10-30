@@ -64,3 +64,89 @@ public enum IvEnvironment
     ElevatedHigh = 2,
     CrushRisk = 3
 }
+
+public enum MaturityLevel
+{
+    Level0_ConceptualArchitecture = 0,
+    Level1_MathematicalSpecification = 1,
+    Level2_EngineImplementation = 2,
+    Level3_UnitAndIntegrationTesting = 3,
+    Level4_HistoricalBacktesting = 4,
+    Level5_ShadowPaperTrading = 5,
+    Level6_ForwardValidation = 6,
+    Level7_GuardedLiveTrading = 7,
+    Level8_FullyAutomatedLiveTrading = 8,
+    Level9_SelfOptimizingSystem = 9
+}
+
+public enum ValidationCampaignStatus
+{
+    Configured = 0,
+    Active = 1,
+    Paused = 2,
+    Completed = 3,
+    Failed = 4
+}
+
+public enum GuardedOrderStatus
+{
+    PendingApproval = 0,
+    Approved = 1,
+    RejectedByUser = 2,
+    TimedOut = 3,
+    OrderDispatched = 4,
+    Acknowledged = 5,
+    PartiallyFilled = 6,
+    Filled = 7,
+    RejectedByBroker = 8,
+    Cancelled = 9,
+    EmergencyFlattened = 10
+}
+
+public enum AutomatedExecutionState
+{
+    Standby = 0,
+    Scanning = 1,
+    OrderPlaced = 2,
+    PositionOpen = 3,
+    Target1Closed = 4,
+    TrailingStopActive = 5,
+    PositionClosed = 6,
+    CircuitBreakerTripped = 7,
+    EmergencyHalt = 8
+}
+
+public enum MLModelStatus
+{
+    Untrained = 0,
+    Trained = 1,
+    Candidate = 2,
+    ShadowTesting = 3,
+    Approved = 4,
+    Active = 5,
+    RolledBack = 6,
+    Retired = 7
+}
+
+public enum OptimizationObjective
+{
+    Expectancy = 0,
+    ProfitFactor = 1,
+    RiskAdjustedSharpe = 2,
+    CalmarRatio = 3
+}
+
+public enum SystemHealthStatus
+{
+    Healthy = 0,
+    Degraded = 1,
+    Critical = 2,
+    EmergencyStop = 3
+}
+
+public enum BacktestExecutionSlippageModel
+{
+    ConservativeBidAsk = 0,
+    FixedPercentage = 1,
+    VolatilityAdjusted = 2
+}
